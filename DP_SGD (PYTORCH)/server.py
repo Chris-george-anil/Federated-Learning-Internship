@@ -91,6 +91,7 @@ def get_eval_fn(model):
                 accuracy = (pred_y == labels).sum().item() / float(labels.size(0))
         print(accuracy)
         acc.append(accuracy)
+        tot_loss.append(loss)
         return loss, {"accuracy": accuracy}
 
     return evaluate
@@ -162,4 +163,5 @@ def start(strategy):
     fl.server.start_server("localhost:3000", config={"num_rounds": 3},strategy=strategy)
    
 start(strategy)
-print(acc)
+print("Accuracy",acc)
+print("Loss",tot_loss)

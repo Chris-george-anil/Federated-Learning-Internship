@@ -65,9 +65,6 @@ classes = ['airplane', 'automobile', 'bird', 'cat', 'deer',
 def train(net,optimizer, trainloader, epochs):
     """Train the network on the training set."""
     criterion = torch.nn.CrossEntropyLoss()
-    # optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-    # privacy_engine = PrivacyEngine(net, sample_rate=0.01, noise_multiplier=1.3, max_grad_norm=1.0)
-    # privacy_engine.attach(optimizer)
     net.train()
     for _ in range(epochs):
         for images, labels in trainloader:
@@ -92,12 +89,6 @@ def test(net, testloader):
             test_output = net(images)
             pred_y = torch.max(test_output, 1)[1].data.squeeze()
             accuracy = (pred_y == labels).sum().item() / float(labels.size(0))
-
-
-            # _, predicted = torch.max(outputs.data, 1)
-            # total += labels.size(0)
-            # correct += (predicted == labels).sum().item()
-    # accuracy = correct / total
     return loss, accuracy
 
 class Net(nn.Module):
@@ -137,7 +128,7 @@ class MNISTClient(fl.client.NumPyClient):
 
         ## DP-SGD Implementation
         self.optimizer = torch.optim.SGD(mod.parameters(), lr=0.001, momentum=0.9)
-        self.privacy_engine = PrivacyEngine(mod, sample_rate=batch_size/num_train,sample_size=num_train, noise_multiplier=0.0, max_grad_norm=1.0)
+        self.privacy_engine = PrivacyEngine(mod, sample_rate=batch_size/num_train,sample_size=num_train, noise_multiplier=1.8, max_grad_norm=1.0)
         self.privacy_engine.attach(self.optimizer)
 
     def get_parameters(self):
@@ -152,7 +143,7 @@ class MNISTClient(fl.client.NumPyClient):
         self.set_parameters(parameters)
         train(self.net,self.optimizer, train_loader, epochs=1)
         global privacy
-        privacy+=self.privacy_engine.get_privacy_spent(10**(-5))[0]
+        privacy+=self.privacy_engine.get_privacy_spent(10**(-5))[0] # to calculate episilon value (delta taken as 10^(-5))
         return self.get_parameters(), len(train_loader), {}
 
     def evaluate(self, parameters, config):

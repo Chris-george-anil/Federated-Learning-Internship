@@ -27,7 +27,6 @@ DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 acc=[]
 tot_loss=[]
 num_workers = 0
-# how many samples per batch to load
 batch_size = 64
 # percentage of training set to use as validation
 valid_size = 0.2
